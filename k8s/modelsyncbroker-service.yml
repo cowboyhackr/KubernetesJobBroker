@@ -1,0 +1,41 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: model-sync-broker-deployment
+  namespace: model-sync
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: model-sync-broker
+    spec:
+      containers:
+      - name: model-sync-broker
+        image: gogtp.azurecr.io/KubernetesJobBroker:16
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 500m
+          requests:
+            memory: 128Mi
+            cpu: 100m
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-sync-broker-service
+  namespace: model-sync
+  annotations:
+    service.beta.kubernetes.io/external-traffic: OnlyLocal
+spec:
+  ports:
+  - name: http-port
+    port: 80
+    targetPort: 80
+  selector:
+    app: model-sync-broker
+  type: ClusterIP # ClusterIP - IP only expsed to cluster
+
